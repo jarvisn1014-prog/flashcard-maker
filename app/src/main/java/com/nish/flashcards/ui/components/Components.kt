@@ -79,23 +79,6 @@ fun SectionHeader(
 }
 
 @Composable
-fun Card(
-    modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null,
-    content: @Composable () -> Unit
-) {
-    val baseModifier = modifier
-        .clip(RoundedCornerShape(16.dp))
-        .background(MaterialTheme.colorScheme.surface)
-
-    val finalModifier = if (onClick != null) baseModifier.clickable { onClick() } else baseModifier
-
-    Box(modifier = finalModifier) {
-        content()
-    }
-}
-
-@Composable
 fun EmptyState(
     icon: String,
     title: String,

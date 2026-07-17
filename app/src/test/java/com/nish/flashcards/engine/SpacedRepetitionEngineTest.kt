@@ -52,9 +52,8 @@ class SpacedRepetitionEngineTest {
         val reviewed = SpacedRepetitionEngine.reviewCard(card, ReviewQuality.GOOD)
 
         assertEquals(3, reviewed.repetitions)
-        // interval = round(3 * 2.5) = 8 (rounds to nearest int)
-        // Actually: (3 * 2.5).toInt() = 7 (truncation)
-        assertEquals(7, reviewed.intervalDays)
+        // interval = round(3 * 2.5) = round(7.5) = 8
+        assertEquals(8, reviewed.intervalDays)
     }
 
     @Test

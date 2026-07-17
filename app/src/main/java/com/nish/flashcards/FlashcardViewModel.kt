@@ -61,6 +61,10 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
     private val _pendingCards = MutableStateFlow<List<Flashcard>>(emptyList())
     val pendingCards: StateFlow<List<Flashcard>> = _pendingCards.asStateFlow()
 
+    // Tracks the deckId for the currently pending generated cards,
+    // so savePendingCards can be called without requiring the UI to pass it back.
+    private val _pendingDeckId = MutableStateFlow<String?>(null)
+
     fun generateFlashcards(deckName: String, sourceText: String) {
         val key = _apiKey.value
         if (key.isBlank()) {
@@ -72,25 +76,29 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
             return
         }
 
-        viewModelScope.launch {
-            _generationState.value = UiState.Loading
-            try {
-                // First create the deck
-                val deck = Deck(name = deckName, sourceText = sourceText)
-                val deckId = db.deckDao().insertDeck(deck)
+        // Set Loading synchronously BEFORE launching the coroutine so the UI
+        // observes the loading state before navigation completes (fixes race).
+        _generationState.value = UiState.Loading
 
-                // Generate cards via AI
-                val result = service.generateFlashcards(key, sourceText, deckId.toString())
+        viewModelScope.launch {
+            try {
+                // First create the deck — use deck.id (UUID PK), NOT the Long
+                // SQLite rowId returned by insertDeck (fixes deckId mismatch).
+                val deck = Deck(name = deckName, sourceText = sourceText)
+                db.deckDao().insertDeck(deck)
+
+                // Generate cards via AI — pass the real UUID deck id
+                val result = service.generateFlashcards(key, sourceText, deck.id)
                 result.fold(
                     onSuccess = { cards ->
-                        // Store as pending — user can review/edit before saving
+                        _pendingDeckId.value = deck.id
                         _pendingCards.value = cards
                         _generationState.value = UiState.Success(cards)
                     },
                     onFailure = { error ->
                         _generationState.value = UiState.Error(error.message ?: "Failed to generate flashcards")
                         // Delete the empty deck since generation failed
-                        db.deckDao().deleteDeck(deck.copy(id = deckId.toString()))
+                        db.deckDao().deleteDeck(deck)
                     }
                 )
             } catch (e: Exception) {
@@ -100,13 +108,15 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     // Save the pending cards to the database (after user review)
-    fun savePendingCards(deckId: String) {
+    fun savePendingCards() {
+        val deckId = _pendingDeckId.value ?: return
         viewModelScope.launch {
             val cards = _pendingCards.value
             if (cards.isNotEmpty()) {
                 db.cardDao().insertCards(cards)
                 db.deckDao().updateCardCount(deckId, cards.size)
                 _pendingCards.value = emptyList()
+                _pendingDeckId.value = null
                 _generationState.value = UiState.Idle
             }
         }

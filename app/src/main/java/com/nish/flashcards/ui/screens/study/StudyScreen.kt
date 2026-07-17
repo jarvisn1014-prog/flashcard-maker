@@ -1,6 +1,5 @@
 package com.nish.flashcards.ui.screens.study
 
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -64,12 +63,34 @@ fun StudyScreen(
         }
     ) { padding ->
         if (cards.isEmpty()) {
-            // Loading or no cards
-            Box(
-                modifier = Modifier.fillMaxSize().padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
+            // Distinguish "loading" from "deck has zero cards".
+            // If the session was started but the deck is genuinely empty,
+            // show an empty state instead of an infinite spinner.
+            if (stats.total == 0) {
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(padding),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text("📭", fontSize = 48.sp)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("No cards in this deck yet", style = MaterialTheme.typography.headlineSmall)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Generate flashcards for this deck to start studying.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(modifier = Modifier.height(24.dp))
+                    PillButton(text = "Back", onClick = {
+                        viewModel.endStudySession(deckId)
+                        onBack()
+                    }, style = PillStyle.Outlined)
+                }
+            } else {
+                // Loading
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(padding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             }
         } else if (currentIndex >= cards.size) {
             // Study complete

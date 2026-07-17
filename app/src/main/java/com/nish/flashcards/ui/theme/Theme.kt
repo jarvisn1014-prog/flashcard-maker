@@ -17,7 +17,6 @@ private val LightColorScheme = lightColorScheme(
     onSurfaceVariant = LightOnSurfaceVariant,
     outline = LightHairline,
     error = Error,
-    success = Success,
 )
 
 private val DarkColorScheme = darkColorScheme(
@@ -31,7 +30,6 @@ private val DarkColorScheme = darkColorScheme(
     onSurfaceVariant = DarkOnSurfaceVariant,
     outline = DarkHairline,
     error = Error,
-    success = Success,
 )
 
 @Composable

@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -35,7 +36,6 @@ fun DeckListScreen(
 ) {
     val decks by viewModel.decks.collectAsState()
     val apiKey by viewModel.apiKey.collectAsState()
-    val scaffoldState = rememberScaffoldState()
 
     Scaffold(
         topBar = {
@@ -172,6 +172,15 @@ private fun DeckRow(
                     } ?: "${deck.cardCount} cards ready to study",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            // Delete deck
+            IconButton(onClick = onDelete) {
+                Icon(
+                    Icons.Filled.Delete,
+                    contentDescription = "Delete deck",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 

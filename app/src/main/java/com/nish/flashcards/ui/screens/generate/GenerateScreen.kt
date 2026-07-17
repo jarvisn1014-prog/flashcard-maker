@@ -103,6 +103,24 @@ fun GenerateScreen(
                                     onDelete = { viewModel.removePendingCard(index) }
                                 )
                             }
+
+                            // Add Card button — lets the user manually append a
+                            // card to the pending set before saving (fix M6).
+                            item {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    PillButton(
+                                        text = "+ Add Card",
+                                        onClick = {
+                                            val deckId = pendingCards.firstOrNull()?.deckId ?: ""
+                                            viewModel.addPendingCard("", "", deckId)
+                                        },
+                                        style = com.nish.flashcards.ui.components.PillStyle.Outlined
+                                    )
+                                }
+                            }
                         }
 
                         // Save bar

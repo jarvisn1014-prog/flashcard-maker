@@ -51,6 +51,9 @@ fun FlashcardNavigation() {
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() },
                 onDone = {
+                    // Persist the generated cards before resetting state —
+                    // otherwise cards are silently discarded (critical fix C1).
+                    viewModel.savePendingCards()
                     viewModel.resetGenerationState()
                     navController.navigate("decks") {
                         popUpTo("decks") { inclusive = true }

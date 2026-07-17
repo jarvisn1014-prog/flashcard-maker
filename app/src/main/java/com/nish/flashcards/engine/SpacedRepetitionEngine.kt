@@ -2,6 +2,7 @@ package com.nish.flashcards.engine
 
 import com.nish.flashcards.data.model.Flashcard
 import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 
 // PM Insight: This is the "invisible science" that makes the app work.
 // SM-2 is the algorithm used by Anki (the gold standard for spaced repetition).
@@ -37,14 +38,15 @@ object SpacedRepetitionEngine {
             newInterval = when (card.repetitions) {
                 0 -> 1
                 1 -> 3
-                else -> (card.intervalDays * card.easinessFactor).toInt().coerceAtLeast(1)
+                else -> (card.intervalDays * card.easinessFactor).roundToInt().coerceAtLeast(1)
             }
         }
 
         // Update easiness factor
         // Formula: EF' = EF + (0.1 - (5-q)*(0.08 + (5-q)*0.02))
+        // SM-2 spec only enforces a floor of 1.3 — there is no ceiling.
         newEasiness = (card.easinessFactor + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02))).toFloat()
-        newEasiness = newEasiness.coerceIn(1.3f, 2.8f)
+        newEasiness = newEasiness.coerceAtLeast(1.3f)
 
         val nextReviewMs = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(newInterval.toLong())
 

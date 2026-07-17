@@ -1,10 +1,6 @@
 package com.nish.flashcards.data.remote
 
 import com.google.gson.annotations.SerializedName
-import retrofit2.http.Body
-import retrofit2.http.Header
-import retrofit2.http.POST
-import retrofit2.http.Url
 
 // PM Insight: This is the AI layer — the entire "intelligence" of the app.
 // The API client sends user's text + a carefully crafted prompt to the LLM,
@@ -44,15 +40,6 @@ data class FlashcardDto(
     @SerializedName("front") val front: String,
     @SerializedName("back") val back: String
 )
-
-interface GeminiApi {
-    @POST
-    suspend fun generateContent(
-        @Url url: String,
-        @Header("x-goog-api-key") apiKey: String,
-        @Body request: GeminiRequest
-    ): GeminiResponse
-}
 
 // PM Insight: Prompt engineering for structured output.
 // We ask for JSON with specific keys, give formatting rules,

@@ -140,7 +140,30 @@ class FlashcardService {
                 .build()
 
             val response = client.newCall(request).execute()
-            Result.success(response.isSuccessful)
+            val responseBody = response.body?.string()
+
+            if (!response.isSuccessful) {
+                return@withContext Result.success(false)
+            }
+
+            // A 2xx alone is not sufficient — the body may contain an error
+            // or empty candidates. Parse to confirm real candidates exist.
+            val jsonResponse = try {
+                JsonParser.parseString(responseBody).asJsonObject
+            } catch (e: Exception) {
+                return@withContext Result.success(false)
+            }
+
+            val candidates = jsonResponse.getAsJsonArray("candidates")
+            val hasValidCandidate = candidates != null &&
+                candidates.size() > 0 &&
+                !candidates[0].asJsonObject
+                    .getAsJsonObject("content")
+                    ?.getAsJsonArray("parts")
+                    ?.get(0)?.asJsonObject
+                    ?.get("text")?.asString.isNullOrBlank()
+
+            Result.success(hasValidCandidate)
         } catch (e: Exception) {
             Result.failure(e)
         }
