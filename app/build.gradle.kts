@@ -68,9 +68,12 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
 
-    // Networking — OkHttp only (Retrofit was unused dead code, removed)
+    // Networking
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    // Gson (used directly by FlashcardService for JSON parsing)
+    implementation("com.google.code.gson:gson:2.11.0")
 
     // DataStore for settings
     implementation("androidx.datastore:datastore-preferences:1.1.1")
