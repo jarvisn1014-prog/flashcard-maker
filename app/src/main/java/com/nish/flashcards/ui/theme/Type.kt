@@ -40,13 +40,13 @@ val FlashcardTypography = Typography(
 
     // Body — 17sp minimum per Apple HIG
     bodyLarge = TextStyle(
-        fontWeight = FontWeight.Regular,
+        fontWeight = FontWeight.Normal,
         fontSize = 17.sp,
         lineHeight = 22.sp,
         letterSpacing = -0.43.sp
     ),
     bodyMedium = TextStyle(
-        fontWeight = FontWeight.Regular,
+        fontWeight = FontWeight.Normal,
         fontSize = 15.sp,
         lineHeight = 20.sp,
         letterSpacing = -0.24.sp

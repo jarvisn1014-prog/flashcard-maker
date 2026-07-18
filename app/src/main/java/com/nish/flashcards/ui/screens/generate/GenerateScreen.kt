@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.nish.flashcards.FlashcardViewModel
 import com.nish.flashcards.UiState
 import com.nish.flashcards.ui.components.PillButton

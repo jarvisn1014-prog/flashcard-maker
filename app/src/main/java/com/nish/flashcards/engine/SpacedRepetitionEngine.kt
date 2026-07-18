@@ -27,7 +27,7 @@ object SpacedRepetitionEngine {
 
         val newRepetitions: Int
         val newInterval: Int
-        val newEasiness: Float
+        var newEasiness: Float
 
         if (q < 3) {
             // Failed recall — start over
