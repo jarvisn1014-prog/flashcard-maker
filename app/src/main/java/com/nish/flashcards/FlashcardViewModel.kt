@@ -36,9 +36,15 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
     val decks: StateFlow<List<Deck>> = db.deckDao().getAllDecks()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    // ─── API key ───
+    // ─── API key + provider ───
     private val _apiKey = MutableStateFlow("")
     val apiKey: StateFlow<String> = _apiKey.asStateFlow()
+
+    private val _ollamaKey = MutableStateFlow("")
+    val ollamaKey: StateFlow<String> = _ollamaKey.asStateFlow()
+
+    private val _provider = MutableStateFlow("gemini")
+    val provider: StateFlow<String> = _provider.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -46,12 +52,28 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
                 _apiKey.value = key
             }
         }
+        viewModelScope.launch {
+            SettingsStore.getOllamaKey(application).collect { key ->
+                _ollamaKey.value = key
+            }
+        }
+        viewModelScope.launch {
+            SettingsStore.getProvider(application).collect { p ->
+                _provider.value = p
+            }
+        }
     }
 
     fun saveApiKey(key: String) {
-        viewModelScope.launch {
-            SettingsStore.setApiKey(getApplication(), key)
-        }
+        viewModelScope.launch { SettingsStore.setApiKey(getApplication(), key) }
+    }
+
+    fun saveOllamaKey(key: String) {
+        viewModelScope.launch { SettingsStore.setOllamaKey(getApplication(), key) }
+    }
+
+    fun setProvider(p: String) {
+        viewModelScope.launch { SettingsStore.setProvider(getApplication(), p) }
     }
 
     // ─── Card generation ───
@@ -66,9 +88,13 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
     private val _pendingDeckId = MutableStateFlow<String?>(null)
 
     fun generateFlashcards(deckName: String, sourceText: String) {
-        val key = _apiKey.value
+        val key = if (_provider.value == "ollama") _ollamaKey.value else _apiKey.value
+        val provider = _provider.value
         if (key.isBlank()) {
-            _generationState.value = UiState.Error("No API key set. Go to Settings to add your free Gemini API key.")
+            _generationState.value = UiState.Error(
+                if (provider == "ollama") "No Ollama Cloud key set. Go to Settings to add your key."
+                else "No API key set. Go to Settings to add your Gemini API key."
+            )
             return
         }
         if (sourceText.isBlank()) {
@@ -88,7 +114,7 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
                 db.deckDao().insertDeck(deck)
 
                 // Generate cards via AI — pass the real UUID deck id
-                val result = service.generateFlashcards(key, sourceText, deck.id)
+                val result = service.generateFlashcards(key, sourceText, deck.id, provider)
                 result.fold(
                     onSuccess = { cards ->
                         _pendingDeckId.value = deck.id
@@ -215,10 +241,10 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
     private val _keyValidation = MutableStateFlow<UiState<Boolean>>(UiState.Idle)
     val keyValidation: StateFlow<UiState<Boolean>> = _keyValidation.asStateFlow()
 
-    fun validateApiKey(key: String) {
+    fun validateApiKey(key: String, provider: String = "gemini") {
         viewModelScope.launch {
             _keyValidation.value = UiState.Loading
-            val result = service.validateApiKey(key)
+            val result = service.validateApiKey(key, provider)
             result.fold(
                 onSuccess = { valid -> _keyValidation.value = UiState.Success(valid) },
                 onFailure = { error -> _keyValidation.value = UiState.Error(error.message ?: "Validation failed") }
