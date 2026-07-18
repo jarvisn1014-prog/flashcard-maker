@@ -161,7 +161,7 @@ if "$cygwin" || "$msys" ; then
             fi
             set -- "$@" "$arg"
         done
-    fi
+    done
 fi
 
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
