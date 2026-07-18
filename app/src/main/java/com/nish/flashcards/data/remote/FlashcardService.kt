@@ -132,7 +132,7 @@ class FlashcardService {
 
         val cleaned = text.removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
         val cards = parseFlashcards(cleaned, deckId)
-        Result.success(cards)
+        return Result.success(cards)
     }
 
     private fun generateViaOllama(
@@ -181,7 +181,7 @@ class FlashcardService {
         // Ollama may wrap in json_object format — extract the array
         val cleaned = extractJsonArray(text)
         val cards = parseFlashcards(cleaned, deckId)
-        Result.success(cards)
+        return Result.success(cards)
     }
 
     /// Extract JSON array from text (may be wrapped in an object or markdown)
@@ -262,7 +262,7 @@ class FlashcardService {
         val body = response.body?.string() ?: return Result.success(false)
         val json = try { gson.fromJson(body, GeminiResponse::class.java) } catch (e: Exception) { return Result.success(false) }
         val hasContent = json?.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text?.isNotBlank() == true
-        Result.success(hasContent)
+        return Result.success(hasContent)
     }
 
     private fun validateOllamaKey(apiKey: String): Result<Boolean> {
@@ -285,6 +285,6 @@ class FlashcardService {
         val body = response.body?.string() ?: return Result.success(false)
         val ollamaResponse = try { gson.fromJson(body, OllamaResponse::class.java) } catch (e: Exception) { return Result.success(false) }
         val hasContent = ollamaResponse?.choices?.firstOrNull()?.message?.content?.isNotBlank() == true
-        Result.success(hasContent)
+        return Result.success(hasContent)
     }
 }
