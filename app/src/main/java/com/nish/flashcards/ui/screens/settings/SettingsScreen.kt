@@ -158,7 +158,7 @@ fun SettingsScreen(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        "Uses DeepSeek V4 Flash for fast structured generation. Your key is stored locally.",
+                        "Uses GLM-5.2 for structured generation. Your key is stored locally.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

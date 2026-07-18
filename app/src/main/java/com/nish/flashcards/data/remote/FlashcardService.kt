@@ -27,7 +27,7 @@ object ProviderConfig {
 
     // Ollama Cloud endpoint (OpenAI-compatible)
     const val OLLAMA_BASE_URL = "https://ollama.com/v1/chat/completions"
-    const val OLLAMA_MODEL = "deepseek-v4-flash" // good for structured generation, fast
+    const val OLLAMA_MODEL = "glm-5.2" // same model Hermes uses, good at structured generation
 
     fun geminiUrl(): String = "$GEMINI_BASE_URL$GEMINI_MODEL:generateContent"
 }
@@ -269,7 +269,7 @@ class FlashcardService {
         val ollamaRequest = OllamaRequest(
             model = ProviderConfig.OLLAMA_MODEL,
             messages = listOf(OllamaMessage(role = "user", content = "Say 'OK'")),
-            max_tokens = 10
+            max_tokens = 100
         )
 
         val request = Request.Builder()
