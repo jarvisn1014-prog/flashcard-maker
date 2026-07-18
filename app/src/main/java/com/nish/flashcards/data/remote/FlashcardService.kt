@@ -42,7 +42,8 @@ data class OllamaRequest(
     val messages: List<OllamaMessage>,
     val temperature: Double = 0.7,
     val max_tokens: Int = 4096,
-    val response_format: OllamaResponseFormat? = null
+    val response_format: OllamaResponseFormat? = null,
+    val reasoning_effort: String? = null  // "none" skips thinking tokens (cost optimization)
 )
 
 data class OllamaResponseFormat(
@@ -150,7 +151,8 @@ class FlashcardService {
             ),
             temperature = 0.7,
             max_tokens = 4096,
-            response_format = OllamaResponseFormat(type = "json_object")
+            response_format = OllamaResponseFormat(type = "json_object"),
+            reasoning_effort = "none"  // skip thinking tokens for cost optimization
         )
 
         val requestBody = gson.toJson(ollamaRequest)
@@ -269,7 +271,8 @@ class FlashcardService {
         val ollamaRequest = OllamaRequest(
             model = ProviderConfig.OLLAMA_MODEL,
             messages = listOf(OllamaMessage(role = "user", content = "Say 'OK'")),
-            max_tokens = 100
+            max_tokens = 50,
+            reasoning_effort = "none"
         )
 
         val request = Request.Builder()
